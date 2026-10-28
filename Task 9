@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <limits.h>
+
+typedef unsigned short meter_t;
+
+#define SLAB1 100
+#define SLAB2 200
+#define RATE2 225L
+#define RATE3 450L
+#define FIXED 5000L
+
+unsigned int consumption(meter_t previous, meter_t current)
+{
+    return (meter_t)(current - previous);
+}
+
+long compute_bill(unsigned int units)
+{
+    long energy = 0;
+
+    if (units > SLAB2)
+    {
+        energy += (long)(units - SLAB2) * RATE3;
+        units = SLAB2;
+    }
+
+    if (units > SLAB1)
+    {
+        energy += (long)(units - SLAB1) * RATE2;
+    }
+
+    return FIXED + energy;
+}
+
+int main(void)
+{
+    unsigned int previous, current, units;
+    long total;
+
+    printf("Enter previous meter reading (0-65535): ");
+
+    if (scanf("%u", &previous) != 1 || previous > USHRT_MAX)
+    {
+        printf("Invalid previous reading\n");
+        return 1;
+    }
+
+    printf("Enter current meter reading (0-65535): ");
+
+    if (scanf("%u", &current) != 1 || current > USHRT_MAX)
+    {
+        printf("Invalid current reading\n");
+        return 1;
+    }
+
+    if (current < previous)
+    {
+        if (previous < 65000 || current > 1000)
+        {
+            printf("Invalid reading or unsupported rollover\n");
+            return 1;
+        }
+
+        units = USHRT_MAX - previous + 1U + current;
+    }
+    else
+    {
+        units = current - previous;
+    }
+
+    total = compute_bill(units);
+
+    printf("Units consumed: %u\n", units);
+    printf("Total bill: Rs %ld.%02ld\n",
+           total / 100, total % 100);
+
+    return 0;
+}

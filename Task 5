@@ -1,0 +1,48 @@
+#include <stdio.h>
+
+#define FIXED_CHARGE_PAISE 5000L
+#define RATE2_PAISE 225L
+#define RATE3_PAISE 450L
+
+long compute_bill(int units);
+
+long compute_bill(int units)
+{
+    long energy = 0;
+
+    if (units > 200)
+    {
+        energy += (long)(units - 200) * RATE3_PAISE;
+        units = 200;
+    }
+
+    if (units > 100)
+    {
+        energy += (long)(units - 100) * RATE2_PAISE;
+    }
+
+#ifdef DEBUG
+    printf("DEBUG: Energy charge = %ld paise\n", energy);
+#endif
+
+    return FIXED_CHARGE_PAISE + energy;
+}
+
+int main(void)
+{
+    int units;
+
+    printf("Enter units consumed: ");
+
+    if (scanf("%d", &units) != 1 || units < 0)
+    {
+        printf("Invalid input\n");
+        return 1;
+    }
+
+    printf("Total bill: Rs %ld.%02ld\n",
+           compute_bill(units) / 100,
+           compute_bill(units) % 100);
+
+    return 0;
+}
